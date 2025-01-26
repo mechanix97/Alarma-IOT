@@ -3,34 +3,24 @@
 
 #include "secrets.h"
 #include "telegram.h"
-
-#define SENSOR_PIN  13  // Pin GPIO al que conectaste el sensor
-#define LED_PIN  2
+#include "alarm.h"
 
 
 void connectToWiFi();
 
 
 void setup() {
-    pinMode(SENSOR_PIN, INPUT); // Configurar como entrada
-    pinMode(LED_PIN, OUTPUT);
+    alarm_init();
     Serial.begin(115200);
     // connectToWiFi();
     // sendTelegramMessage("Hola!!");
 }
-bool algo = true;
+
 void loop() {
-  int sensorValue = digitalRead(SENSOR_PIN); // Leer estado del sensor
-  
-  if (sensorValue == HIGH) {
-    Serial.println("Puerta cerrada");
-  } else {
-    Serial.println("Puerta abierta");
-  }
-//   delay(500); // Esperar un poco antes de leer nuevamente
-//   digitalWrite(LED_PIN, algo);
-//   algo = !algo;
-    // Serial.println(getTelegramUpdate(592280713));
+    turn_on_alarm_siren();
+    delay(1000);
+    turn_off_alarm_siren();
+    delay(1000);
 }
 
 
