@@ -12,7 +12,6 @@
 
 #define LED_PIN  2
 
-
 void alarm_init();
 void activate_alarm();
 void desactivate_alarm();

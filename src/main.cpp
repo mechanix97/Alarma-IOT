@@ -6,21 +6,49 @@
 #include "alarm.h"
 
 
+extern bool frontDoorSensorActivated;
+extern bool backDoorSensorActivated;
+extern bool movementrSensor1Activated;
+extern bool movementrSensor2Activated;
+extern bool movementrSensor3Activated;
+
+extern bool alarmActivated;
+
 void connectToWiFi();
 
+
+int offset = 0;
+
+String text;
 
 void setup() {
     alarm_init();
     Serial.begin(115200);
-    // connectToWiFi();
+    connectToWiFi();
     // sendTelegramMessage("Hola!!");
 }
 
 void loop() {
-    turn_on_alarm_siren();
-    delay(1000);
-    turn_off_alarm_siren();
-    delay(1000);
+    // if(alarmActivated && (
+    //     frontDoorSensorActivated  ||
+    //     backDoorSensorActivated   ||
+    //     movementrSensor1Activated ||
+    //     movementrSensor2Activated ||
+    //     movementrSensor3Activated)
+    // ){
+    //     turn_on_alarm_siren();
+    // }
+    String reponse = getTelegramUpdate(offset);
+    if (parseTelegramUpdate(reponse, text, offset)){
+        Serial.println(text);
+        offset++;
+        if (text == "\\ALARMAON"){
+            activate_alarm();
+        } else if (text == "\\ALARMAOFF"){
+            desactivate_alarm();
+        }
+    }
+
 }
 
 

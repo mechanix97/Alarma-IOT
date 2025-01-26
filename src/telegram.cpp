@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 String telegram_send_msg_url = String("https://api.telegram.org/bot") + TELEGRAM_BOT_TOKEN + "/sendMessage";
 String telegram_get_upds_url = String("https://api.telegram.org/bot") + TELEGRAM_BOT_TOKEN + "/getUpdates";
@@ -57,5 +58,39 @@ String getTelegramUpdate(int offset){
         Serial.println(httpResponseCode);
         http.end(); // Cerrar la conexión
         return "";
+    }
+}
+
+
+bool parseTelegramUpdate(const String& response, String& messageText, int& updateOffset) {
+    // Crear un objeto JSON dinámico
+    const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(3) + 3 * JSON_OBJECT_SIZE(4) + 200;
+    DynamicJsonDocument doc(capacity);
+
+    // Parsear la respuesta
+    DeserializationError error = deserializeJson(doc, response);
+    if (error) {
+        Serial.print("Error al parsear JSON: ");
+        Serial.println(error.c_str());
+        return false;
+    }
+
+    // Comprobar si hay resultados en el JSON
+    if (!doc["result"].is<JsonArray>() || doc["result"].size() == 0) {
+        Serial.println("No hay mensajes en la respuesta.");
+        return false;
+    }
+
+    // Obtener el primer objeto de la matriz de resultados
+    JsonObject firstResult = doc["result"][0];
+
+    // Extraer el update_id y el texto del mensaje
+    updateOffset = firstResult["update_id"]; // Offset
+    if (firstResult.containsKey("message") && firstResult["message"].containsKey("text")) {
+        messageText = firstResult["message"]["text"].as<String>(); // Texto del mensaje
+        return true;
+    } else {
+        Serial.println("No se encontró texto en el mensaje.");
+        return false;
     }
 }
