@@ -23,32 +23,38 @@ String text;
 
 void setup() {
     alarm_init();
-    Serial.begin(115200);
+     Serial.begin(115200);
+    
     connectToWiFi();
-    // sendTelegramMessage("Hola!!");
+    
 }
 
 void loop() {
-    // if(alarmActivated && (
-    //     frontDoorSensorActivated  ||
-    //     backDoorSensorActivated   ||
-    //     movementrSensor1Activated ||
-    //     movementrSensor2Activated ||
-    //     movementrSensor3Activated)
-    // ){
-    //     turn_on_alarm_siren();
-    // }
+    if(alarmActivated && (
+        frontDoorSensorActivated  ||
+        backDoorSensorActivated   ||
+        movementrSensor1Activated ||
+        movementrSensor2Activated ||
+        movementrSensor3Activated)
+    ){
+        turn_on_alarm_siren();
+    }
     String reponse = getTelegramUpdate(offset);
+    Serial.println("RESPONSE: "+reponse);
+    Serial.print("OFFSET: ");
+    Serial.println(offset);
     if (parseTelegramUpdate(reponse, text, offset)){
-        Serial.println(text);
         offset++;
-        if (text == "\\ALARMAON"){
+        Serial.println("text_"+text);
+        Serial.print("OFFSET: ");
+        Serial.println(offset);
+        if (text == "/alarma_on"){
             activate_alarm();
-        } else if (text == "\\ALARMAOFF"){
+        } else if (text == "/alarma_off"){
             desactivate_alarm();
         }
     }
-
+   
 }
 
 
@@ -58,13 +64,13 @@ void connectToWiFi() {
     WiFi.mode(WIFI_STA); // Modo cliente Wi-Fi
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-    Serial.print("Conectando a Wi-Fi...");
+    // Serial.print("Conectando a Wi-Fi...");
 
     // Esperar hasta que se conecte al Wi-Fi
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
-        Serial.print(".");
+        // Serial.print(".");
     }
 
-    Serial.println("\nConectado a la red Wi-Fi");
+    // Serial.println("\nConectado a la red Wi-Fi");
 }

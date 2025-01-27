@@ -22,7 +22,7 @@ void alarm_init(){
     pinMode(MOVEMENT_SENSOR_2_PIN, INPUT);
     pinMode(MOVEMENT_SENSOR_3_PIN, INPUT);
 
-    attachInterrupt(digitalPinToInterrupt(FRONT_DOOR_SENSOR_PIN), handleInterruptfrontDoorSensorActivated, ONLOW);
+    // attachInterrupt(digitalPinToInterrupt(FRONT_DOOR_SENSOR_PIN), handleInterruptfrontDoorSensorActivated, ONLOW);
 
     pinMode(ALARM_SIREN_PIN, OUTPUT);
 

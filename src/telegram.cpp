@@ -40,8 +40,7 @@ void sendTelegramMessage(String message) {
 
 
 String getTelegramUpdate(int offset){
-    String url = telegram_get_upds_url + "?offset=" + String(offset);
-
+    String url = telegram_get_upds_url + "?offset=" + String(offset) + "&limit=1";
     HTTPClient http;          // Crear el cliente HTTP
     http.begin(url);          // Iniciar la conexión a la URL
 
@@ -63,34 +62,39 @@ String getTelegramUpdate(int offset){
 
 
 bool parseTelegramUpdate(const String& response, String& messageText, int& updateOffset) {
-    // Crear un objeto JSON dinámico
-    const size_t capacity = JSON_ARRAY_SIZE(1) + JSON_OBJECT_SIZE(3) + 3 * JSON_OBJECT_SIZE(4) + 200;
-    DynamicJsonDocument doc(capacity);
+    JsonDocument doc;
 
-    // Parsear la respuesta
+    // Analizar el JSON
     DeserializationError error = deserializeJson(doc, response);
     if (error) {
-        Serial.print("Error al parsear JSON: ");
+        Serial.print("Error al analizar JSON: ");
         Serial.println(error.c_str());
         return false;
     }
 
-    // Comprobar si hay resultados en el JSON
-    if (!doc["result"].is<JsonArray>() || doc["result"].size() == 0) {
-        Serial.println("No hay mensajes en la respuesta.");
+    // Verificar que la respuesta sea válida
+    if (!doc["ok"]) {
+        Serial.println("Respuesta de Telegram no válida.");
         return false;
     }
 
-    // Obtener el primer objeto de la matriz de resultados
-    JsonObject firstResult = doc["result"][0];
+    // Acceder al array "result"
+    JsonArray results = doc["result"].as<JsonArray>();
+    if (results.size() == 0) {
+        Serial.println("No hay resultados en el JSON.");
+        return false;
+    }
 
-    // Extraer el update_id y el texto del mensaje
-    updateOffset = firstResult["update_id"]; // Offset
-    if (firstResult.containsKey("message") && firstResult["message"].containsKey("text")) {
-        messageText = firstResult["message"]["text"].as<String>(); // Texto del mensaje
+    // Extraer el primer "update_id" y "text"
+    updateOffset = results[0]["update_id"];
+    const char* text = results[0]["message"]["text"];
+
+    // Verificar que el texto no sea nulo
+    if (text) {
+        messageText = String(text); // Asignar el texto al parámetro de salida
         return true;
     } else {
-        Serial.println("No se encontró texto en el mensaje.");
+        Serial.println("El mensaje no contiene texto.");
         return false;
     }
 }
