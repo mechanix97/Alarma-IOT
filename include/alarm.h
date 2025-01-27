@@ -16,6 +16,8 @@ void alarm_init();
 void activate_alarm();
 void desactivate_alarm();
 
+void attachInterrupts();
+
 void turn_on_alarm_siren();
 void turn_off_alarm_siren();
 

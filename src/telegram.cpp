@@ -25,16 +25,14 @@ void sendTelegramMessage(String message) {
         // Verifica el código de respuesta de la solicitud
         if (httpCode > 0) {
             String payload = http.getString(); // Respuesta del servidor
-            Serial.println("Mensaje enviado correctamente a Telegram");
-            Serial.println(payload); // Muestra la respuesta
         } 
         else {
-          Serial.println("Error al enviar mensaje a Telegram, Código HTTP: " + String(httpCode));
+        //   Serial.println("Error al enviar mensaje a Telegram, Código HTTP: " + String(httpCode));
         }
 
         http.end(); // Cierra la conexión
     } else {
-        Serial.println("Error de conexión Wi-Fi");
+        // Serial.println("Error de conexión Wi-Fi");
     }
 }
 
