@@ -6,5 +6,6 @@
 void sendTelegramMessage(String message);
 String getTelegramUpdate(int offset);
 bool parseTelegramUpdate(const String& response, String& messageText, int& updateOffset);
-
+void sendTelegramKeyboard(String keyboardJson);
+void removeTelegramKeyboard();
 #endif

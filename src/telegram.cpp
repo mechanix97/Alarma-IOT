@@ -26,14 +26,9 @@ void sendTelegramMessage(String message) {
         if (httpCode > 0) {
             String payload = http.getString(); // Respuesta del servidor
         } 
-        else {
-        //   Serial.println("Error al enviar mensaje a Telegram, Código HTTP: " + String(httpCode));
-        }
 
         http.end(); // Cierra la conexión
-    } else {
-        // Serial.println("Error de conexión Wi-Fi");
-    }
+    } 
 }
 
 
@@ -51,8 +46,6 @@ String getTelegramUpdate(int offset){
         return payload;
     } else {
         // Si hubo un error en la conexión
-        Serial.print("Error en HTTP, código: ");
-        Serial.println(httpResponseCode);
         http.end(); // Cerrar la conexión
         return "";
     }
@@ -65,21 +58,17 @@ bool parseTelegramUpdate(const String& response, String& messageText, int& updat
     // Analizar el JSON
     DeserializationError error = deserializeJson(doc, response);
     if (error) {
-        Serial.print("Error al analizar JSON: ");
-        Serial.println(error.c_str());
         return false;
     }
 
     // Verificar que la respuesta sea válida
     if (!doc["ok"]) {
-        Serial.println("Respuesta de Telegram no válida.");
         return false;
     }
 
     // Acceder al array "result"
     JsonArray results = doc["result"].as<JsonArray>();
     if (results.size() == 0) {
-        Serial.println("No hay resultados en el JSON.");
         return false;
     }
 
@@ -92,7 +81,54 @@ bool parseTelegramUpdate(const String& response, String& messageText, int& updat
         messageText = String(text); // Asignar el texto al parámetro de salida
         return true;
     } else {
-        Serial.println("El mensaje no contiene texto.");
         return false;
     }
 }
+
+
+void sendTelegramKeyboard(String keyboardJson) {
+    if (WiFi.status() == WL_CONNECTED) {
+        WiFiClientSecure client;
+        client.setInsecure();
+        HTTPClient http;
+
+        String postData = String("{\"chat_id\":\"") + TELEGRAM_CHAT_ID +
+                          "\",\"text\":\"Selecciona un sensor:\",\"reply_markup\":" + keyboardJson + "}";
+
+        http.begin(client, telegram_send_msg_url);
+        http.addHeader("Content-Type", "application/json");
+
+        int httpCode = http.POST(postData);
+
+        if (httpCode > 0) {
+            String payload = http.getString();
+        } 
+        http.end();
+    }
+}
+
+void removeTelegramKeyboard(//const String& selectedOption
+) {
+    if (WiFi.status() == WL_CONNECTED) {
+        WiFiClientSecure client;
+        client.setInsecure();
+        HTTPClient http;
+
+        String removeKeyboardJson = R"({"remove_keyboard": true})";
+        String postData = String("{\"chat_id\":\"") + TELEGRAM_CHAT_ID +
+                           "\",\"text\":\"Has seleccionado: " + //selectedOption +
+                          "\",\"reply_markup\":" + removeKeyboardJson + "}";
+
+        http.begin(client, telegram_send_msg_url);
+        http.addHeader("Content-Type", "application/json");
+
+        int httpCode = http.POST(postData);
+
+        if (httpCode > 0) {
+            String payload = http.getString();
+        } 
+
+        http.end();
+    }
+}
+

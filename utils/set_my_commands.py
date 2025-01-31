@@ -9,7 +9,9 @@ base_url = f"https://api.telegram.org/bot{bot_token}/"
 # Comandos que quieres configurar
 commands = [
     {"command": "/alarma_on", "description": "Enciende la alarma"},
-    {"command": "/alarma_off", "description": "Apaga la alarma"}
+    {"command": "/alarma_off", "description": "Apaga la alarma"},
+    {"command": "/status", "description": "Estado de los sensores"},
+    {"command": "/config", "description": "Configuracion de los sensores"}
 ]
 
 # Función para configurar los comandos
